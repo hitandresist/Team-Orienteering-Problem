@@ -1,0 +1,6 @@
+
+
+from os import listdir
+from os.path import isfile, join
+onlyfiles = [f for f in listdir("C:/Users/aprietoabollado/Desktop/set") if isfile(join("C:/Users/aprietoabollado/Desktop/set", f))]
+print(onlyfiles)

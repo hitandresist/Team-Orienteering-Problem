@@ -1,0 +1,27 @@
+*********************
+* OP test instances *
+*********************
+
+The first line contains the following data: 
+
+	Tmax P
+
+Where
+	Tmax 	= available time budget per path
+	P	= number of paths (=1)
+
+
+The remaining lines contain the data of each point. 
+For each point, the line contains the following data:
+
+	x y S
+
+Where
+	x	= x coordinate 
+	y	= y coordinate
+	S	= score
+
+* REMARKS *
+	- The first point is the starting point.
+	- The second point is the ending point.
+	- The Euclidian distance is used.
