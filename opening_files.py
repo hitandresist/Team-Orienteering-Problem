@@ -5,30 +5,25 @@ Created on Mon Nov  2 22:55:13 2020
 @author: Andres Prieto
 """
 
-import pandas as pd
-import numpy as np
+from Lectura_instancias import *
 
-POIs = pd.read_csv(
-    "C:/Users/Andres Prieto/Documents/Master Investigación en Inteligencia Artificial/Resolución de Problemas con Metaheurísticos/Trabajo/Team_Orienteering_Problem/TOP_Inst/Set_21_234/p2.2.a.txt", 
-    sep="\t", header = None , names=("coor_x","coor_y", "profit") , skiprows=(0,1,2))
-
-print(POIs)
-
-constraints = pd.read_csv("C:/Users/Andres Prieto/Documents/Master Investigación en Inteligencia Artificial/Resolución de Problemas con Metaheurísticos/Trabajo/Team_Orienteering_Problem/TOP_Inst/Set_21_234/p2.2.a.txt",
-                          sep=" ", header = None, nrows=3)
-
-print(constraints)
-
-tmax = constraints.iloc[2,1]
-n = constraints.iloc[0,1]
-m = constraints.iloc[0,0]
-
-print(type(tmax))
+TOP_Inst = Instancia_TOP("C:/Users/Andres Prieto/Documents/Master Investigación en Inteligencia Artificial/Resolución de Problemas con Metaheurísticos/Trabajo/Team_Orienteering_Problem/TOP_Inst/Set_21_234/p2.2.a.txt")
 
 
-coor_x = POIs.iloc[:,0]
-coor_y = POIs.iloc[:,1]
-profit = POIs.iloc[:,2]
+edges = list(itools.combinations(self.nodes, 2))
+        
 
-print(np.array(coor_x))
+        
+nodes_out = [(i , self.distances[ 0 , i] + self.distances[i, self.N_nodes - 1]) for i in nodes if self.distances[ 0 , i] + self.distances[i, self.N_nodes - 1] > self.B_time_budget]
+            
+        
+G = nx.Graph()
+G.add_nodes_from(nodes)
+#G.add_edges_from(edges)
+        
+color_node = []
+position = { i : (coor_x[i], coor_y[i]) for i in nodes}
 
+plt.plot(1)
+nx.draw_networkx(G, pos = position , with_labels=True , node_size=self.profit*10)
+plt.show()
