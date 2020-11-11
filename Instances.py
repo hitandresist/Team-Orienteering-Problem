@@ -1,3 +1,5 @@
+
+
 import networkx as nx
 import matplotlib.pyplot as plt
 import itertools as itools
@@ -16,7 +18,7 @@ class TOP():
      explicación detallada del significado de cada uno de
      los valores"""
 
-    def __init__(self, filepath = "C:/Users/Andres Prieto/Documents/Master Investigación en Inteligencia Artificial/Resolución de Problemas con Metaheurísticos/Trabajo/Team_Orienteering_Problem/TOP_Inst/Set_21_234/p2.2.a.txt"):
+    def __init__(self, filepath = "TOP_Inst/prueba.txt"):
         
         self.filepath = filepath
         
@@ -45,7 +47,7 @@ class TOP():
             
             distances = np.sqrt(np.sum((coor[None, :] - coor[:, None])**2, -1))
             
-       
+            
             return tmax, n, m, nodes, coor_x, coor_y, coor, profit, distances
         
         self.instance_data = read_data_instance(self.filepath)
@@ -131,13 +133,22 @@ class TOP():
         if Tmax is None:
             Tmax = self.B_time_budget
         
+        nodes = np.delete(nodes, np.where(nodes == 0))
+        nodes = np.delete(nodes, np.where(nodes == self.N_nodes - 1))
+        #print(f"lista que entra en la función de validación y ordenación de nodos:\n{nodes}\n")
+        
         # print(f"Nodo inicial: {node_0}"
         #       f"Lista de nodos: {nodes}"
         #       f"Tmax: {}")
         
-        in_nodes = [[i, self.profit[i], self.distances[node_0, i]] for i in nodes if self.distances[node_0 , i] + self.distances[i, self.N_nodes - 1] <= Tmax ]
+        in_nodes_pd = [[i, self.profit[i], self.distances[node_0, i]] for i in nodes if self.distances[node_0 , i] + self.distances[i, self.N_nodes - 1] <= Tmax ]
         
-        in_nodes.sort(key = operator.itemgetter(1,2))
+        in_nodes_pd.sort(key = operator.itemgetter(2), reverse=True)
+        in_nodes_pd.sort(key = operator.itemgetter(1))
+        
+        in_nodes = []
+        for i in in_nodes_pd:
+            in_nodes.append(i[0])
         
         return in_nodes        
         
@@ -146,28 +157,64 @@ class TOP():
         Ym = np.zeros((self.k_routes,1)).astype(int).tolist()
         SV_ini_nodes = self.sorted_valid_nodes()
         t_consumed = np.zeros((self.k_routes,1)).astype(int).tolist()
-        SV_nodes = SV_ini_nodes.copy()
+        
+        SV_nodes = []
+        for m in range(self.k_routes):
+        
+            SV_nodes.append(SV_ini_nodes.copy())
+            
         tmax = np.ones((self.k_routes,1))*self.B_time_budget
         tmax = tmax.tolist()
-
+        counter = 0
         
               
-        while True:
+        while counter < self.k_routes:
+            print(f"\n\n\n==================== Iteracion ======================")
             for m in range(self.k_routes):
-                
-                SV_nodes = self.sorted_valid_nodes(node_0=Ym[m][-1], nodes = np.array(SV_nodes)[:,0].astype(int),Tmax = tmax[m])
-                print(f"Nodos válidos: {SV_nodes}\n")
-                
-                Ym[m].append(SV_nodes.pop()[0])
+                print(f"\n\n------------------- Camino {m} ---------------------\n")
+                print(f"\nlistado de nodos:\n {SV_nodes[m]}\n")
                 
                 
-                t_consumed[m] = t_consumed[m] + self.distances[Ym[m][-1], Ym[m][-2]]
-                print(f"Tiempo consumido: {t_consumed}\n")
+                SV_nodes[m] = self.sorted_valid_nodes(node_0=Ym[m][-1], nodes = SV_nodes[m],Tmax = tmax[m])
+                
+                if not SV_nodes[m]:
+                    
+                    if (self.N_nodes - 1) not in Ym[m]:
+                        
+                        Ym[m].append(self.N_nodes - 1)
+                        counter += 1
+                        continue
+                    else:
+                        continue
+                    
+                print(f"Nodo de inicio: {Ym[m][-1]}\n")
+                print(f"Nodos válidos: {SV_nodes[m]}\n")
+                print(f"Tiempo disponible: {tmax[m]}\n")
+                # TODO: ARREGLAR EL TEMA DE POPEAR EN LA LISTA OBJETIVO Y REMOVER ESE VALOR EN LA OTRA LISTA
+                node = SV_nodes[m].pop()
+                print(f"sv_nodes: {SV_nodes}")
+                print(f"node: {node}")
+                
+                for i in range(self.k_routes):
+                    if node in SV_nodes[i]:
+                        SV_nodes[i].remove(node)
+                    
+                    else:
+                        continue
+                    
+                print(f"sv_nodes: {SV_nodes}")
+                Ym[m].append(node)
+                
+                print(f"Siguiente nodo incluido en el camino {m}: { Ym[m][-1]}\n")
+                      
+                print(f"Distancia consumida en el camino {m}: {t_consumed[m]} + {self.distances[Ym[m][-1], Ym[m][-2]]}\n")
+                t_consumed[m] = self.distances[Ym[m][-1], Ym[m][-2]]
+                
                 
                 tmax[m] = tmax[m] - t_consumed[m]
-                print(f"Tiempo que queda: {tmax}\n")
+                print(f"Tiempo que queda: {tmax[m]}\n")
             
-            print(Ym)
+            print(F"\n\nYm:\n\n\t{Ym}")
         
         
         
@@ -180,7 +227,7 @@ class TOP():
         
         
 
-top_1 = TOP("C:/Users/Andres Prieto/Documents/Master Investigación en Inteligencia Artificial/Resolución de Problemas con Metaheurísticos/Trabajo/Team_Orienteering_Problem/TOP_Inst/Set_21_234/p2.2.a.txt")
+top_1 = TOP("C:/Users/Andres Prieto/Documents/Master Investigación en Inteligencia Artificial/Resolución de Problemas con Metaheurísticos/Trabajo/Team_Orienteering_Problem/TOP_Inst/prueba.txt")
         
 # print(top_1.get_data())
 # print(top_1.get_data(mode="list"))
@@ -193,11 +240,6 @@ tmax, n, m, nodes, coor_x, coor_y, coor, profit, edges = top_1.get_data(mode="li
 top_1.draw()
 
 top_1.inicialization()
-
-print(top_1.distances(0,13) + top_1.distances(13,10) + top_1.distances(10,20))
-
-# print(top_1.sorted_valid_nodes())
-# print(top_1.nodes)
 
 
 
